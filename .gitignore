@@ -1,8 +1,5 @@
-_site/
-.sass-cache/
-.jekyll-metadata
-_pdf
-.DS_Store
-.idea
-vendor/
-.bundle/
+_site
+.sass-cache
+Gemfile.lock
+_drafts
+.jsbeautifyrc
