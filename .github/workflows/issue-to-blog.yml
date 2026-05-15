@@ -1,0 +1,86 @@
+name: 🤖 Issue to Blog Post
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-blog-post:
+    if: contains(github.event.issue.labels.*.name, 'blog-content')
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Extract Blog Content from Issue
+      id: extract
+      run: |
+        # Issue 본문에서 JSON 추출
+        echo '${{ github.event.issue.body }}' > issue_content.txt
+        
+        # JSON 파싱해서 블로그 포스트 생성
+        python3 << 'EOF'
+        import json
+        import re
+        from datetime import datetime
+        
+        # Issue 본문 읽기
+        with open('issue_content.txt', 'r') as f:
+            content = f.read()
+        
+        # JSON 부분 추출 (json 코드 블록에서)
+        json_match = re.search(r'json\n(.*?)\n', content, re.DOTALL)
+        if json_match:
+            blog_data = json.loads(json_match.group(1))
+            
+            # 날짜 생성
+            date = datetime.now().strftime('%Y-%m-%d')
+            
+            # Jekyll Front Matter + 내용
+            post_content = f"""---
+        layout: post
+        title: "{blog_data['post_title']}"
+        date: {blog_data['post_date']}
+        categories: {blog_data['categories']}
+        tags: {blog_data['tags']}
+        author: AI Portfolio Analyst
+        description: "AI 기반 중소형주 발굴 및 포트폴리오 분석 주간 리포트"
+        ---
+        
+        {blog_data['content']}
+        
+        ---
+        *본 리포트는 AI 기반 자동 분석으로 생성되었으며, 투자의 참고 자료로만 활용하시기 바랍니다.*
+        
+        **다음 분석 예정:** 다음 주 수요일
+        """
+            
+            # 파일 생성
+            filename = f"_posts/{blog_data['post_date']}-weekly-portfolio-analysis.md"
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(post_content)
+            
+            print(f"::set-output name=filename::{filename}")
+            print(f"::set-output name=blog_url::https://${{ github.repository_owner }}.github.io/{blog_data['post_date'].replace('-', '/')}/weekly-portfolio-analysis.html")
+        EOF
+        
+    - name: 🚀 Commit and Push Blog Post
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "CrewAI Blog Bot"
+        git add _posts/
+        git commit -m "🤖 New blog post from CrewAI analysis - $(date +%Y-%m-%d)" || exit 0
+        git push
+        
+    - name: ✅ Close Issue
+      uses: peter-evans/close-issue@v3
+      with:
+        issue-number: ${{ github.event.issue.number }}
+        comment: |
+          🎉 블로그 포스트가 성공적으로 생성되었습니다!
+          
+          📝 **생성된 포스트:** ${{ steps.extract.outputs.filename }}
+          🔗 **블로그 URL:** ${{ steps.extract.outputs.blog_url }}
+          
+          약 5분 후 블로그에서 확인하실 수 있습니다.
