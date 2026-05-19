@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-{% include head.html %}
-<body>
-  <div class="content-container">
-    {{ content }}
-
-    {% include footer.html %}
-  </div>
-</body>
-</html>
+{% seo %} {% include ticker.html %}
+{{ site.name | split: ' ' | first }}.
+Weekly Stock Picks
+{% for nav in site.nav %} {% if nav.url contains 'http://' or nav.url contains 'https://' %} {{ nav.name }} {% else %} {{ nav.name }} {% endif %} {% endfor %}
+{{ content }}
+© {{ site.copyright.year }} {{ site.copyright.name }}
+{% for nav in site.nav %} {% if nav.url contains 'http://' or nav.url contains 'https://' %} {{ nav.name }} {% else %} {{ nav.name }} {% endif %} {% endfor %}
