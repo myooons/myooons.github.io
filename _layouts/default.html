@@ -1,7 +1,56 @@
-{% seo %} {% include ticker.html %}
-{{ site.name | split: ' ' | first }}.
-Weekly Stock Picks
-{% for nav in site.nav %} {% if nav.url contains 'http://' or nav.url contains 'https://' %} {{ nav.name }} {% else %} {{ nav.name }} {% endif %} {% endfor %}
-{{ content }}
-© {{ site.copyright.year }} {{ site.copyright.name }}
-{% for nav in site.nav %} {% if nav.url contains 'http://' or nav.url contains 'https://' %} {{ nav.name }} {% else %} {{ nav.name }} {% endif %} {% endfor %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} — {% endif %}{{ site.name }}</title>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | prepend: site.baseurl }}">
+  {% seo %}
+</head>
+<body>
+
+  {% include ticker.html %}
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="{{ site.url }}{{ site.baseurl }}" class="site-logo">
+        <div class="logo-name">{{ site.name | split: ' ' | first }}<span>.</span></div>
+        <div class="logo-sub">Weekly Stock Picks</div>
+      </a>
+      <nav class="site-nav">
+        {% for nav in site.nav %}
+          {% if nav.url contains 'http://' or nav.url contains 'https://' %}
+            <a href="{{ nav.url }}" target="_blank" rel="noopener">{{ nav.name }}</a>
+          {% else %}
+            <a href="{{ nav.url | prepend: site.baseurl }}">{{ nav.name }}</a>
+          {% endif %}
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        &copy; {{ site.copyright.year }} <span>{{ site.copyright.name }}</span>
+        &nbsp;·&nbsp; 본 블로그는 투자 권유가 아닙니다
+      </div>
+      <div class="footer-links">
+        {% for nav in site.nav %}
+          {% if nav.url contains 'http://' or nav.url contains 'https://' %}
+            <a href="{{ nav.url }}" target="_blank" rel="noopener">{{ nav.name }}</a>
+          {% else %}
+            <a href="{{ nav.url | prepend: site.baseurl }}">{{ nav.name }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
